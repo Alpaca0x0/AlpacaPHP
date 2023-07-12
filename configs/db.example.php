@@ -5,5 +5,5 @@ return [
 	'port' => 3306,
 	'user' => 'root',
 	'pass' => 'password',
-	'name' => 'reurl',
+	'name' => 'alpacaphp',
 ];

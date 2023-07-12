@@ -5,8 +5,8 @@
 #
 # for NginX, put it into configuration file.
 #
-// location ^~ /router/ {
-//     root /var/www/html/router;
+// location ^~ /AlpacaPHP/ {
+//     root /var/www/html/AlpacaPHP;
 //     include fastcgi_params;
 //     fastcgi_param SCRIPT_FILENAME $document_root/router.php;
 //     fastcgi_pass unix:/run/php/php-fpm.sock;

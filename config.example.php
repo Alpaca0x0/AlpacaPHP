@@ -11,11 +11,11 @@ define('NAME', 'AlpacaPHP');
 
 # Debug mode: show errors
 # 除錯模式：顯示錯誤資訊
-define('DEBUG', true);
+define('DEBUG', false);
 
 # Development mode: show info
 # 開發者模式：顯示更多資訊
-define('DEV', true);
+define('DEV', false);
 
 # Full development mode: (show more info)
 # 進階開發者模式：顯示更多資訊
@@ -23,7 +23,7 @@ define('FULL_DEV', false);
 
 # URL root path of the project, e.g. /router/
 # 網站 URL 根目錄，例如：/router/
-define('Root', '/');
+define('Root', '/AlpacaPHP/');
 
 
 
@@ -48,7 +48,6 @@ define('MSG', [
 # Libraries of php which using on this project
 # 在此專案中所使用的 PHP 函式庫
 define('Libraries', [
-	#'pdo_mysql', // for database
     'gd', // 用於繪製圖像驗證碼
     'pdo', // 資料庫連接使用 pdo
 ]);
@@ -96,4 +95,4 @@ define('Domain', isset($_SERVER['HTTP_X_FORWARDED_HOST']) ? $_SERVER['HTTP_X_FOR
 define('Protocol', isset($_SERVER['HTTP_X_FORWARDED_PROTO']) ? $_SERVER['HTTP_X_FORWARDED_PROTO'] : (!empty($_SERVER['HTTPS']) ? 'https' : 'http'));
 
 # Client IP
-define('ClientIP', isset($_SERVER['HTTP_X_REMOTE_ADDR']) ? $_SERVER['HTTP_X_REMOTE_ADDR'] : $_SERVER["REMOTE_ADDR"]);
+define('IP', isset($_SERVER['HTTP_X_REMOTE_ADDR']) ? $_SERVER['HTTP_X_REMOTE_ADDR'] : $_SERVER["REMOTE_ADDR"]);
