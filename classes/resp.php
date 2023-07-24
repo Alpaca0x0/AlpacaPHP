@@ -2,9 +2,9 @@
 class Resp{
     static private $buffer;
 
-    static function header(){
+    static function header($headers='Content-Type: application/json; charset=utf-8'){
         if(headers_sent()){ self::error('header_send', 'Headers already been sent.'); }
-        header('Content-Type: application/json; charset=utf-8');
+        header($headers);
     }
 
     static private function write(){
