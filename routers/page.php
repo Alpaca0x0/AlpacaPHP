@@ -2,7 +2,6 @@
 Router::new(Path::page);
 
 Router::equal('/', function () { Router::redirect('/index/'); });
-Router::get('index/', function () { Router::view('index'); });
 
 Router::view();
 

@@ -47,12 +47,23 @@ class Router{
     static function view($filename=null){
         if(headers_sent()){ die('Router Error: Headers already been sent.'); }
         $filename = is_null($filename) ? self::path() : $filename;
-        $filepath = File::in(self::local())::try($filename);
+        // resources with full name
+        $filepath = File::in(self::local())::exist($filename);
         if($filepath !== false){
             $mimeType = File::getMimeType(Local.$filepath);
             header('Content-Type: '.$mimeType);
-            if($mimeType === 'text/html'){ require($filepath); }
-            else{ readfile($filepath); }
+            if($mimeType !== 'text/html'){
+                readfile($filepath);
+            }
+            else{ return false; }
+            die();
+        }
+        // or is php, html
+        $filepath = File::in(self::local())::try($filename, ['.php', '.html', '/index.php', '/index.html']);
+        if($filepath !== false){
+            if(!str_ends_with(self::path(), '/')){ self::redirect(self::path().'/'); }
+            header('Content-Type: text/html');
+            require($filepath);
             die();
         }
         return false;
