@@ -28,6 +28,7 @@ Router::init();
 Router::get(['img/', 'js/', 'css/', 'plugin/'], 'asset', Router::path());
 Router::get('auth/', 'auth');
 Router::get('api/', 'api');
+Router::get('sub-page/', 'sub-page');
 
 Router::get('/', 'page', Router::path());
 
