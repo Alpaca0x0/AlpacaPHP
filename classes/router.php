@@ -61,7 +61,7 @@ class Router{
         // or is php, html
         $filepath = File::in(self::local())::try($filename, ['.php', '.html', '/index.php', '/index.html']);
         if($filepath !== false){
-            if(!str_ends_with(self::path(), '/')){ self::redirect(self::path().'/'); }
+            if(!str_ends_with(self::path(), '/') && self::path() !== ''){ self::redirect(self::path().'/'); }
             header('Content-Type: text/html');
             require($filepath);
             die();
