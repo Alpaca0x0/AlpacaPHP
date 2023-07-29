@@ -85,6 +85,12 @@ class Router{
         die();
     }
 
+	static function args($idx=null, $replace=null){
+		$ret = explode('/', self::path());
+		if(is_null($idx)){ return $ret; }
+		else{ return isset($ret[$idx]) ? $ret[$idx] : $replace; }
+	}
+
     # get info of router
     # e.g. /project-root/router-root/path/
     static function uri(){ return self::$uri; } // /router-root/path/
