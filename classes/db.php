@@ -139,7 +139,7 @@ class DB{
 
     static function lastInsertId(){
 		if(!self::isConnected() || self::error()){ return false; }
-		return self::$connect->lastInsertId();
+		return (int)self::$connect->lastInsertId();
 	}
 
 	static function beginTransaction(){ self::$connect->beginTransaction(); }
