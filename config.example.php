@@ -96,3 +96,6 @@ define('Protocol', isset($_SERVER['HTTP_X_FORWARDED_PROTO']) ? $_SERVER['HTTP_X_
 
 # Client IP
 define('IP', isset($_SERVER['HTTP_X_REMOTE_ADDR']) ? $_SERVER['HTTP_X_REMOTE_ADDR'] : $_SERVER["REMOTE_ADDR"]);
+
+# Current datetime
+define('DATETIME', time());
