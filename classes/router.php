@@ -86,7 +86,7 @@ class Router{
     }
 
 	static function args($idx=null, $replace=null){
-		$ret = explode('/', self::path());
+		$ret = explode('/', trim(self::path(), '/\\'));
 		if(is_null($idx)){ return $ret; }
 		else{ return isset($ret[$idx]) ? $ret[$idx] : $replace; }
 	}
