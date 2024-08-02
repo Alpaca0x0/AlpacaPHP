@@ -87,8 +87,7 @@ class Path{ const
 define('Local', __DIR__.DIRECTORY_SEPARATOR);
 
 # Domain
-# 網域
-define('Domain', explode(':',isset($_SERVER['HTTP_X_FORWARDED_HOST']) ? $_SERVER['HTTP_X_FORWARDED_HOST'] : (isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST']     : ''))[0]);
+define('Domain', explode(':',isset($_SERVER['HTTP_X_FORWARDED_HOST']) ? $_SERVER['HTTP_X_FORWARDED_HOST'] : (isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : ''))[0]);
 
 # Port
 define('Port', $_SERVER['SERVER_PORT']);
