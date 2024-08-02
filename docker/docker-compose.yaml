@@ -1,0 +1,47 @@
+version: "3"
+
+name: ${APP}
+
+volumes:
+  db-data:
+
+services:
+
+  alpaca-php-db:
+    image: mariadb
+    container_name: ${APP}-db
+    restart: unless-stopped
+    environment:
+      TZ: Asia/Taipei
+      #- MARIADB_USER=user
+      #- MARIADB_PASSWORD=password
+      MARIADB_ROOT_PASSWORD: password
+      MARIADB_DATABASE: ${DB_NAME}
+    volumes:
+      - db-data:/var/lib/mysql
+    networks:
+      default:
+        ipv4_address: ${SUBNET}.0.2
+
+  alpaca-php-app:
+    image: ${IMAGE}
+    build: .
+    container_name: ${APP}-app
+    restart: unless-stopped
+    depends_on:
+      - alpaca-php-db
+    environment:
+      TZ: Asia/Taipei
+    volumes:
+      - ../app/:/usr/share/nginx/html
+      - ../nginx:/etc/nginx
+      - ./entrypoint.sh:/docker-entrypoint.d/custom.sh
+    networks:
+      default:
+        ipv4_address: ${SUBNET}.0.3
+      
+networks:
+  default:
+    name: ${NET_NAME}
+    driver: bridge
+    external: true
