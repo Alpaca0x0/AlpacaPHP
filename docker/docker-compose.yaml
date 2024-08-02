@@ -35,7 +35,6 @@ services:
     volumes:
       - ../app/:/usr/share/nginx/html
       - ../nginx:/etc/nginx
-      - ./entrypoint.sh:/docker-entrypoint.d/custom.sh
     networks:
       default:
         ipv4_address: ${SUBNET}.0.3
