@@ -2,7 +2,7 @@
 class File{
     static private $path = Path::page;
     static function in($path){
-        self::$path = Local.ltrim($path, '/');
+        self::$path = LOCAL.ltrim($path, '/');
         return self::class;
     }
     static function exist($filename){

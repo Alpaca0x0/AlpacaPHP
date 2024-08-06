@@ -7,7 +7,7 @@ class Router{
 
     # init the router, only using on the main router
     static function init(){
-        self::$uri = is_null(self::$uri) ? substr($_SERVER['SCRIPT_NAME'], strlen(Root) - 1) : self::$uri;
+        self::$uri = is_null(self::$uri) ? substr($_SERVER['SCRIPT_NAME'], strlen(ROOT) - 1) : self::$uri;
         self::$path = ltrim(self::uri(), '/\\');
         self::$root = '';
         // self::$local = Local;
@@ -50,7 +50,7 @@ class Router{
         // resources with full name
         $filepath = File::in(self::local())::exist($filename);
         if($filepath !== false){
-            $mimeType = File::getMimeType(Local.$filepath);
+            $mimeType = File::getMimeType(LOCAL.$filepath);
             header('Content-Type: '.$mimeType);
             if($mimeType !== 'text/html'){
                 readfile($filepath);
@@ -81,7 +81,7 @@ class Router{
     static function redirect($path, $withPost=true, $withGet=true){
         if(headers_sent()){ die('Router Error: Headers already been sent.'); }
         if($withPost) header('HTTP/1.1 307 Temporary Redirect');
-        header('Location: '.Root.self::root().ltrim($path,'/').($withGet && empty($_SERVER['QUERY_STRING']) ? '' : '?'.$_SERVER['QUERY_STRING']));
+        header('Location: '.ROOT.self::root().ltrim($path,'/').($withGet && empty($_SERVER['QUERY_STRING']) ? '' : '?'.$_SERVER['QUERY_STRING']));
         die();
     }
 

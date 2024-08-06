@@ -24,9 +24,9 @@ foreach (Libraries as $library)
 /****************************************************************/
 # Init
 # Classes
-$filenames = glob(Local.Path::clas.Path::init."*.php");
+$filenames = glob(LOCAL.Path::clas.Path::init."*.php");
 # Functions
-array_push($filenames, ...glob(Local.Path::func.Path::init."*.php"));
+array_push($filenames, ...glob(LOCAL.Path::func.Path::init."*.php"));
 # Loading
 foreach($filenames as $filename){ require_once($filename); }
 

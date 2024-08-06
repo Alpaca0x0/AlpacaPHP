@@ -23,7 +23,7 @@ define('FULL_DEV', false);
 
 # URL root path of the project, e.g. /router/
 # 網站 URL 根目錄，例如：/router/
-define('Root', '/AlpacaPHP/');
+define('ROOT', '/AlpacaPHP/');
 
 
 
@@ -84,16 +84,16 @@ class Path{ const
 
 # Local root path of project
 # 本地端根目錄
-define('Local', __DIR__.DIRECTORY_SEPARATOR);
+define('LOCAL', __DIR__.DIRECTORY_SEPARATOR);
 
 # Domain
-define('Domain', explode(':',isset($_SERVER['HTTP_X_FORWARDED_HOST']) ? $_SERVER['HTTP_X_FORWARDED_HOST'] : (isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : ''))[0]);
+define('DOMAIN', explode(':',isset($_SERVER['HTTP_X_FORWARDED_HOST']) ? $_SERVER['HTTP_X_FORWARDED_HOST'] : (isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : ''))[0]);
 
 # Port
-define('Port', $_SERVER['SERVER_PORT']);
+define('PORT', $_SERVER['SERVER_PORT']);
 
 # Protocol
-define('Protocol', isset($_SERVER['HTTP_X_FORWARDED_PROTO']) ? $_SERVER['HTTP_X_FORWARDED_PROTO'] : (!empty($_SERVER['HTTPS']) ? 'https' : 'http'));
+define('PROTOCOL', isset($_SERVER['HTTP_X_FORWARDED_PROTO']) ? $_SERVER['HTTP_X_FORWARDED_PROTO'] : (!empty($_SERVER['HTTPS']) ? 'https' : 'http'));
 
 # Client IP
 define('IP', isset($_SERVER['HTTP_X_REMOTE_ADDR']) ? $_SERVER['HTTP_X_REMOTE_ADDR'] : $_SERVER["REMOTE_ADDR"]);

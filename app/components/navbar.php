@@ -23,7 +23,7 @@
                 hidden: item.is?.hidden ? item.is.hidden : false,
             };
             // active item
-            let uri = '<?=htmlentities(Root.trim(Router::uri(),'/').'/')?>';
+            let uri = '<?=htmlentities(ROOT.trim(Router::uri(),'/').'/')?>';
             if(uri.startsWith(item.link)){ item.is.active = true; }
         };
 
