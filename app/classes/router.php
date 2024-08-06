@@ -10,7 +10,7 @@ class Router{
         self::$uri = is_null(self::$uri) ? substr($_SERVER['SCRIPT_NAME'], strlen(ROOT) - 1) : self::$uri;
         self::$path = ltrim(self::uri(), '/\\');
         self::$root = '';
-        // self::$local = Local;
+        // self::$local = LOCAL;
     }
 
     # create a new router (usually a "router" file will only call this function once)
@@ -67,6 +67,13 @@ class Router{
             die();
         }
         return false;
+    }
+
+    # enter path
+    static function enter($path=null, $local=null){
+        self::$path = is_null($path) ? self::$path : substr(self::path(), strlen($path));
+        self::$local .= is_null($local) ? $path : $local;
+        return self::class;
     }
 
     # route to another router
