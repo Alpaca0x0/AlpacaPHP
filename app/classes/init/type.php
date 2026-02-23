@@ -7,8 +7,18 @@ class Type{
             if($type==='json'){
                 $replace = isset(func_get_args()[2]) ? $replace : [];
                 if(is_array($data)){ return $data; }
-                $ret = @json_decode($data);
+                $ret = @json_decode($data, true);
                 return is_array($ret) ? $ret : $replace;
+            }else if(in_array($type, ['datetime', 'date', 'time'])){
+                $formats = [
+                    'datetime' => 'Y-m-d H:i:s',
+                    'date' => 'Y-m-d', 
+                    'time' => 'H:i:s',
+                ];
+                $format = $formats[$type];
+                $dt = new DateTimeImmutable($data ?? 0);
+                if(!$dt){ return $replace; }
+                return str_starts_with($dt->format('Y') ?? '-', '-') ? $replace : $dt->format($format);
             }
             else if(@settype($data,$type) !== true){ throw new Exception('type convert error'); }
         } catch (\Throwable $th) {
@@ -24,4 +34,8 @@ class Type{
     static function json(){ return self::convert('json', ...func_get_args()); }
     static function object(){ return self::convert('object', ...func_get_args()); }
     static function array(){ return self::convert('array', ...func_get_args()); }
+    static function float(){ return self::convert('float', ...func_get_args()); }
+    static function datetime(){ return self::convert('datetime', ...func_get_args()); }
+    static function date(){ return self::convert('date', ...func_get_args()); }
+    static function time(){ return self::convert('time', ...func_get_args()); }
 }
