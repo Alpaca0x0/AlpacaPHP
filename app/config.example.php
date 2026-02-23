@@ -9,6 +9,10 @@
 # 專案名稱
 define('NAME', 'AlpacaPHP');
 
+# Version of project
+# 專案版本
+define('VERSION', '0.0.1 (dev)');
+
 # Debug mode: show errors
 # 除錯模式：顯示錯誤資訊
 define('DEBUG', false);
@@ -96,7 +100,13 @@ define('PORT', $_SERVER['SERVER_PORT']);
 define('PROTOCOL', isset($_SERVER['HTTP_X_FORWARDED_PROTO']) ? $_SERVER['HTTP_X_FORWARDED_PROTO'] : (!empty($_SERVER['HTTPS']) ? 'https' : 'http'));
 
 # Client IP
-define('IP', isset($_SERVER['HTTP_X_REMOTE_ADDR']) ? $_SERVER['HTTP_X_REMOTE_ADDR'] : $_SERVER["REMOTE_ADDR"]);
+define('IP', isset($_SERVER['HTTP_X_REMOTE_ADDR']) ? $_SERVER['HTTP_X_REMOTE_ADDR'] : (isset($_SERVER["REMOTE_ADDR"]) ? $_SERVER["REMOTE_ADDR"] : null));
 
 # Current datetime
-define('DATETIME', time());
+define('DATETIME', microtime(true));
+
+# URL base
+define('URL_BASE', PROTOCOL . '://' . DOMAIN);
+
+# URL
+define('URL', URL_BASE . $_SERVER['REQUEST_URI'] ?? '/');

@@ -4,12 +4,14 @@ class Router{
     static private $local=null;     // local path where is routing (not include the absolute local path)
     static private $path=null;   // the path to be processed by the router
     static private $root=null;
+	static private $parmsStr=null; // "GET" parameters string
 
     # init the router, only using on the main router
     static function init(){
         self::$uri = is_null(self::$uri) ? substr($_SERVER['SCRIPT_NAME'], strlen(ROOT) - 1) : self::$uri;
         self::$path = ltrim(self::uri(), '/\\');
         self::$root = '';
+		self::$parmsStr = $_SERVER['QUERY_STRING'];
         // self::$local = LOCAL;
     }
 
@@ -91,6 +93,12 @@ class Router{
         header('Location: '.ROOT.self::root().ltrim($path,'/').($withGet && empty($_SERVER['QUERY_STRING']) ? '' : '?'.$_SERVER['QUERY_STRING']));
         die();
     }
+    static function jump($path, $withPost=false, $withGet=false){
+        if(headers_sent()){ die('Router Error: Headers already been sent.'); }
+        if($withPost) header('HTTP/1.1 307 Temporary Redirect');
+        header('Location: '.$path.($withGet && !empty($_SERVER['QUERY_STRING']) ? '?'.$_SERVER['QUERY_STRING'] : ''));
+        die();
+    }
 
 	static function args($idx=null, $replace=null){
 		$ret = explode('/', trim(self::path(), '/\\'));
@@ -104,4 +112,5 @@ class Router{
     static function local(){ return self::$local; }  // /router-local/
     static function path(){ return self::$path; }  // path/
     static function root(){ return self::$root; }  // /project-root/router-root/
+	static function parmsStr($questionSigh=true){ return self::$parmsStr!=='' && $questionSigh ? '?'.self::$parmsStr : self::$parmsStr; } // ?a=123&b=456
 }
