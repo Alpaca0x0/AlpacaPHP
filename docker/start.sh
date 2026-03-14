@@ -1,0 +1,1 @@
+docker compose -p alpacaphp up --force-recreate -d && docker compose logs -f -p alpacaphp -t --tail=320

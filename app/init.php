@@ -7,7 +7,6 @@
 #
 /****************************************************************/
 # Initialize
-date_default_timezone_set('Asia/Taipei');
 define('INIT', true);
 require_once('config.php');
 

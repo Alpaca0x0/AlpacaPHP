@@ -39,7 +39,7 @@ define('ROOT', '/AlpacaPHP/');
 # Messages
 # 顯示訊息
 define('MSG', [
-    'maintain' => 'The website is under maintenance. Please come back later.<br>網站正在維修中，請稍後再回來看看吧。'
+    'maintain' => 'The website is under maintenance. Please come back later.'
 ]);
 
 
@@ -74,7 +74,6 @@ class Path{ const
     js = 'js/',         // Javascript
     css = 'css/',       // CSS
     img = 'img/',       // Images
-    auth = 'auth/',     // The path where the pages used for verification is stored
     plugin = 'plugin/',  // Plugins, e.g. Animation.js
     api = 'api/'  // API
 ;}
@@ -91,19 +90,16 @@ class Path{ const
 define('LOCAL', __DIR__.DIRECTORY_SEPARATOR);
 
 # Domain
-define('DOMAIN', explode(':',isset($_SERVER['HTTP_X_FORWARDED_HOST']) ? $_SERVER['HTTP_X_FORWARDED_HOST'] : (isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : ''))[0]);
+define('DOMAIN', explode(':', $_SERVER['HTTP_X_FORWARDED_HOST'] ?? ($_SERVER['HTTP_HOST'] ?? ''))[0]);
 
 # Port
-define('PORT', $_SERVER['SERVER_PORT']);
+define('PORT', $_SERVER['SERVER_PORT'] ?? 80);
 
 # Protocol
-define('PROTOCOL', isset($_SERVER['HTTP_X_FORWARDED_PROTO']) ? $_SERVER['HTTP_X_FORWARDED_PROTO'] : (!empty($_SERVER['HTTPS']) ? 'https' : 'http'));
+define('PROTOCOL', $_SERVER['HTTP_X_FORWARDED_PROTO'] ?? (!empty($_SERVER['HTTPS']) ? 'https' : 'http'));
 
 # Client IP
-define('IP', isset($_SERVER['HTTP_X_REMOTE_ADDR']) ? $_SERVER['HTTP_X_REMOTE_ADDR'] : (isset($_SERVER["REMOTE_ADDR"]) ? $_SERVER["REMOTE_ADDR"] : null));
-
-# Current datetime
-define('DATETIME', microtime(true));
+define('IP', $_SERVER['HTTP_X_REMOTE_ADDR'] ?? $_SERVER["REMOTE_ADDR"] ?? null);
 
 # URL base
 define('URL_BASE', PROTOCOL . '://' . DOMAIN);

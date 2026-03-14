@@ -142,7 +142,16 @@ class DB{
 		return (int)self::$connect->lastInsertId();
 	}
 
-	static function beginTransaction(){ self::$connect->beginTransaction(); }
-	static function commit(){ self::$connect->commit(); }
-	static function rollback(){ self::$connect->rollback(); }
+	static function beginTransaction(){
+		if(!self::$connect || !self::$connect->inTransaction()){ return false; }
+		return self::$connect->beginTransaction();
+	}
+	static function commit(){
+		if(!self::$connect || !self::$connect->inTransaction()){ return false; }
+		return self::$connect->commit();
+	}
+	static function rollback(){
+		if(!self::$connect || !self::$connect->inTransaction()){ return false; }
+		return self::$connect->rollback();
+	}
 }

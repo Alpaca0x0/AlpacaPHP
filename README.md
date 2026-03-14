@@ -2,43 +2,61 @@
 
 ![Cover image of AlpacaPHP](https://i.imgur.com/XXuMFlA.jpg)
 
-### :zap: Using
+### :zap: Setup & Using
 
-```bash
-# Clone this project first
-git clone https://github.com/alpaca0x0/AlpacaPHP.git AlpacaPHP
-```
+- Clone project
 
-```bash
-# Enter project folder
-cd ./AlpacaPHP/
-# Copy config example files
-cp ./config.example.php config.php
-cp ./configs/db.example.php configs/db.php
-cp ./configs/email.example.php configs/email.php
-# Edit config files (choose your own editor)
-vim ./config.php
-vim ./configs/db.php
-vim ./configs/email.php
-```
+  ```bash
+  # Clone this project first
+  git clone https://github.com/alpaca0x0/AlpacaPHP.git AlpacaPHP
+  ```
 
-```bash
-# Setting router in web server
-# For example, nginx (your path may be different):
-vim /etc/nginx/conf.d/default.conf
-```
+- Edit configs
 
-```nginx
-# Route all traffic to router.php in project root path
-# p.s. The "root" value set as your own path of project root
-#      The same goes for other fields...
-location ^~ /AlpacaPHP/ {
+  ```bash
+  # Enter project folder
+  cd ./AlpacaPHP/
+  # Copy config example files
+  cp ./config.example.php config.php
+  cp ./configs/db.example.php configs/db.php
+  # Edit config files (choose your own editor)
+  vim ./config.php
+  vim ./configs/db.php
+  ```
+
+- Configure http server (for example: `Nginx`)
+
+  ```bash
+  # Setting router in web server
+  # For example, nginx (your path may be different):
+  vim /etc/nginx/conf.d/default.conf
+  ```
+
+  In run on `host` case:
+
+  ```nginx
+  # Route all traffic to router.php in project root path
+  # p.s. The "root" value set as your own path of project root
+  #      The same goes for other fields...
+  location ^~ /AlpacaPHP/ {
     root /var/www/html/AlpacaPHP;
     include fastcgi_params;
     fastcgi_param SCRIPT_FILENAME $document_root/router.php;
     fastcgi_pass unix:/run/php/php-fpm.sock;
-}
-```
+  }
+  ```
+
+  or, In run on `docker` case:
+
+  ```nginx
+  location ^~ /AlpacaPHP/ {
+    proxy_pass http://x.x.x.x;
+  }
+  ```
+
+  > Don't forget to change the proxy pass IP above.
+
+
 
 :grin: Have fun.
 
@@ -58,7 +76,18 @@ location ^~ /AlpacaPHP/ {
 
 ## :gear: Structures
 
-說明一些關於該專案的架構，僅僅解釋較為主要或有疑慮的部份。
+說明一些關於該專案的架構，僅僅解釋較為主要或可能造成困惑的部份。
+
+| 目錄 | 說明 |
+|------|------|
+| `api/` | API 端點，採用 Ajax 請求，回應 JSON 格式 |
+| `assets/` | 前端資源（JS、CSS、圖片、插件） |
+| `classes/` | 核心功能類別 |
+| `components/` | 頁面部件（`header`、`footer` 等） |
+| `configs/` | 設定檔目錄 |
+| `libraries/` | 僅供後端使用的函式庫（有別於 `assets/plugin/`） |
+| `pages/` | 站點主要頁面 |
+| `routers/` | Web Routing 規則 |
 
 ### :sassy_woman: `router`
 
@@ -74,11 +103,6 @@ location ^~ /AlpacaPHP/ {
 
 - **`api`**\
   一些專門用於獲取資料的頁面。
-
-- **`assets`**\
-  前端所會用到的資源，包含常見的 JS、CSS，以及圖片、插件庫等。
-
-- **`auth`**\
   用於驗證的頁面，通常採用 Ajax 請求，並回應 Json 格式。通常情況下，回應欄位有以下幾種：
   - `type` 作為回應類別，通常有如下幾種常見的類型：
     - `success` 成功執行
@@ -91,6 +115,9 @@ location ^~ /AlpacaPHP/ {
   - `message` 用於顯示的回應訊息，可以含有任意字元，但通常結尾並不會有標點符號。大多數情況下，該欄位被要求必須設定，但在少數情況，該欄位被允許為`NULL`。
   
   當然這並非固定格式，在某些特定功能中，也可能會有其獨有的回應格式。
+
+- **`assets`**\
+  前端所會用到的資源，包含常見的 JS、CSS，以及圖片、插件庫等。
 
 - **`classes`**\
   一些核心的功能，以 Class 的方式包裝資料與函式，通常為靜態呼叫。

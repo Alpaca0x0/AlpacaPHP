@@ -4,8 +4,7 @@
 <div class="ts-container">
     <?php
     Inc::clas('db');
-    DB::connect() or die('error - database can not connect.');
-    echo ('successfully - database has connected.');
+    echo (DB::connect() ? 'successfully - database has connected.' : 'error - database can not connect.');
     ?>
 </div>
 
