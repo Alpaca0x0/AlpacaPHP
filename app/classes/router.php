@@ -5,7 +5,6 @@ class Router{
     static private $path=null;   // the path to be processed by the router
     static private $root=null;
 	static private $parmsStr=null; // "GET" parameters string
-    static private $pathArgs=[];
     static $args=[];
 
     # init the router, only using on the main router
@@ -14,7 +13,6 @@ class Router{
         self::$path = ltrim(self::uri(), '/\\');
         self::$root = '';
 		self::$parmsStr = $_SERVER['QUERY_STRING'];
-        self::$pathArgs = [];
         self::$args = [];
         // self::$local = LOCAL;
     }
@@ -91,7 +89,6 @@ class Router{
             if(!str_ends_with(self::path(), '/') && self::path() !== ''){ self::redirect(self::path().'/'); }
             $normalizedPath = trim($filename, '/\\');
             self::$path = $normalizedPath === '' ? '' : $normalizedPath.'/';
-            self::$pathArgs = [];
             self::$args = [];
             header('Content-Type: text/html');
             require($filepath);
@@ -118,9 +115,10 @@ class Router{
         if($matchedFile !== false){
             if(!str_ends_with($filename, '/') && $filename !== ''){ self::redirect($filename.'/'); }
             self::$path = implode('/', array_slice($parts, 0, $matchedDepth)).'/';
-            self::$pathArgs = array_slice($parts, $matchedDepth);
-            self::$args = null;
+            self::$args = array_slice($parts, $matchedDepth);
             header('Content-Type: text/html');
+            $isCalledargs = self::getArgsCount($matchedFile);
+            if(is_null($isCalledargs)){ self::args(); }
             require($matchedFile);
             die();
         }
@@ -154,20 +152,49 @@ class Router{
     # - rejects /x/a/b/c/
     # return true when valid, false when invalid
     static function args(&...$vars){
-        $pathArgs = self::$pathArgs;
+        $args = self::$args;
 
-        if(count($pathArgs) > count($vars)){
-            self::$args = false;
+        if(count($args) > count($vars)){
             http_response_code(400);
             die();
             return false;
         }
 
         foreach($vars as $i => &$var){
-            $var = isset($pathArgs[$i]) ? $pathArgs[$i] : null;
+            $var = isset($args[$i]) ? $args[$i] : null;
         }
-        self::$args = $pathArgs;
         return true;
+    }
+
+    # magic function for check if file calls Router::args()
+    static function getArgsCount($file) {
+        $code = file_get_contents($file);
+        $tokens = token_get_all($code);
+        $count = null;
+        for ($i = 0; $i < count($tokens); $i++) {
+            // 找到 Router::args(
+            if (
+                is_array($tokens[$i]) && $tokens[$i][0] === T_STRING && $tokens[$i][1] === 'Router' &&
+                isset($tokens[$i+1]) && $tokens[$i+1][0] === T_DOUBLE_COLON &&
+                isset($tokens[$i+2]) && $tokens[$i+2][0] === T_STRING && $tokens[$i+2][1] === 'args' &&
+                isset($tokens[$i+3]) && $tokens[$i+3] === '('
+            ) {
+                // 計算括號內的參數數量
+                $j = $i + 4;
+                $args = 0;
+                $parenLevel = 1;
+                while ($parenLevel > 0 && isset($tokens[$j])) {
+                    if ($tokens[$j] === '(') $parenLevel++;
+                    elseif ($tokens[$j] === ')') $parenLevel--;
+                    elseif ($parenLevel === 1 && $tokens[$j] === ',') $args++;
+                    $j++;
+                }
+                // 有參數才算
+                if ($j > $i + 4) $count = $args + ($j - $i - 4 > 1 ? 1 : 0);
+                break;
+            }
+        }
+        return $count;
     }
 
     # get info of router

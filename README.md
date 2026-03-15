@@ -420,6 +420,9 @@ Router::args($action, $id);
 
 > :warning: 若要使用該函式，必須寫在頁面的`最上方`！
 
+> :warning: 若頁面沒有呼叫該函式，則無法匹配任何帶有參數的請求。
+
+
 > :warning: 參數可以少給，但不能多給\
 > 同樣的例子中，可以匹配`/user/edit/`甚至`/user/`，但不能匹配`/user/edit/123/456/`，若不匹配則會回應`400` status code。
 

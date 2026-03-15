@@ -1,4 +1,3 @@
-<?php Router::args($ids); ?>
 <?php Inc::component('header'); ?>
 <?php Inc::component('navbar'); ?>
 
@@ -7,7 +6,6 @@
     <h1>Index 首頁</h1>
     <span>歡迎您使用 AlpacaPHP。</span>
 </div>
-
 
 <div class="ts-divider is-section"></div>
 
