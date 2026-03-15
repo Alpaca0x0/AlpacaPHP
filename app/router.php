@@ -17,7 +17,6 @@ Router::init();
 // main routers
 Router::get(['img/', 'js/', 'css/', 'plugin/'], 'asset', true);
 Router::get('api/', 'api');
-Router::get('admin/', 'admin');
 
 Router::get('/', 'page');
 

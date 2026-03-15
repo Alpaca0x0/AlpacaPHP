@@ -283,7 +283,7 @@ http_response_code(404);
 | 參數 | 型別 | 必填 | 說明 |
 |---|---|---|---|
 | `$uris` | `string \| string[]` | 是 | 要匹配的 URI 前綴，可傳單一路徑（如 `api/`）或多路徑陣列（如 `['js/', 'css/']`）。 |
-| `$callback` | `callable \| string` | 否 | 匹配成功後執行。`string` 代表導向到對應路由檔（如 `'api'` 對應 `routers/api.php`）；`callable` 代表直接執行函式。 |
+| `$callback` | `callable \| string` | 是 | 匹配成功後執行。`string` 代表導向到對應路由檔（如 `'api'` 對應 `routers/api.php`）；`callable` 代表直接執行函式。 |
 | `$path` | `string \| true` | 否 | 覆寫傳遞給下一層路由的處理路徑。預設時會自動用目前路徑扣除 `$uris` 前綴後的路徑；若為 `true` 則會將當前路由的路徑原封不動轉傳至下層；若為字串，則表示自訂路徑，可以在字串中使用變數`{root}`表示匹配的 $uris；`{path}`表示扣除 $uris 前綴的路徑。 |
 
 > 喔對了，請別誤會，此處的 `get` 與 HTTP Method 的 `GET` 是**沒有關聯**的，該方法只是剛好也叫這個名稱，本專案之路由功能並**不能**也**不需要**區分請求類型。
