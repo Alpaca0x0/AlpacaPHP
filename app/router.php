@@ -1,17 +1,6 @@
 <?php
 # # # # # # # # # #
 # Setting router  #
-# # # # # # # # # #
-#
-# for NginX, put it into configuration file.
-#
-// location ^~ /AlpacaPHP/ {
-//     root /var/www/html/AlpacaPHP;
-//     include fastcgi_params;
-//     fastcgi_param SCRIPT_FILENAME $document_root/router.php;
-//     fastcgi_pass unix:/run/php/php-fpm.sock;
-// }
-#
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 #
 # DO NOT output any stuff on this page.
@@ -25,10 +14,12 @@ require_once('init.php');
 Inc::clas('Router');
 Router::init();
 
-Router::get(['img/', 'js/', 'css/', 'plugin/'], 'asset', Router::path());
-Router::get('auth/', 'auth');
+// main routers
+Router::get(['img/', 'js/', 'css/', 'plugin/'], 'asset', true);
 Router::get('api/', 'api');
+Router::get('admin/', 'admin');
+Router::get('forest/', 'nature');
 
-Router::get('/', 'page', Router::path());
+Router::get('/', 'page');
 
 http_response_code(404);

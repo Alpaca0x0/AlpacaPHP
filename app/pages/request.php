@@ -24,12 +24,12 @@
 <div class="ts-divider is-section"></div>
 
 <div class="ts-container">
-    <?php Inc::component('info');?>
+    <?php Inc::component('router'); ?>
 </div>
 
 <script type="module">
     import '<?=Uri::js('ajax')?>';
-    import { createApp, reactive, } from '<?=Vue::uri()?>';
+    import { createApp, reactive, } from '<?=Uri::js('vue')?>';
     // 
     const el = {
         form: document.querySelector('form#Form'),

@@ -11,7 +11,7 @@
 <br>
 
 <script type="module">
-    import { createApp } from '<?=Vue::uri()?>';
+    import { createApp } from '<?=Uri::js('vue')?>';
 
     const Navbar = createApp({setup(){
         let items = <?=json_encode(Inc::config('navbar'))?>;

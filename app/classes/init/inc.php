@@ -1,5 +1,14 @@
 <?php
 class Inc{
+    static function mqtt($name){
+        foreach(['', '.php'] as $exName){
+            $filename = File::in(Path::mqtt)::exist($name.$exName);
+            if($filename) break;
+        }
+        if($filename === false){ die('Inc::mqtt(): Error - Can not include mqtt "'.$name.'".'); }
+        return require($filename);
+    }
+
     static function clas($name){
         if(class_exists(ucfirst($name))) return;
         $filename = File::in(Path::clas)::exist(lcfirst($name).'.php');
@@ -30,6 +39,8 @@ class Inc{
             if($filename) break;
         }
         if($filename === false){ die('Inc::component(): Error - Can not include subpage "'.$name.'".'); }
+        $_args = func_get_args();
+        unset($_args[0]);
         return require($filename);
     }
 

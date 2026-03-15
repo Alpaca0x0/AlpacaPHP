@@ -7,20 +7,27 @@
 
         <tr>
             <td><strong>Router::uri()</strong></td>
-            <td><?=Router::uri()?></td>
+            <td><?=htmlentities(Router::uri())?></td>
         </tr>
         <tr>
             <td><strong>Router::local()</strong></td>
-            <td><?=Router::local()?></td>
+            <td><?=htmlentities(Router::local())?></td>
         </tr>
         <tr>
             <td><strong>Router::path()</strong></td>
-            <td><?=Router::path()?></td>
+            <td><?=htmlentities(Router::path())?></td>
         </tr>
         <tr>
             <td><strong>Router::root()</strong></td>
-            <td><?=Router::root()?></td>
+            <td><?=htmlentities(Router::root())?></td>
         </tr>
-        
+        <tr>
+            <td><strong>Router::$args</strong></td>
+            <td><?=htmlentities(json_encode(Router::$args))?></td>
+        </tr>
+        <tr>
+            <td><strong>Router::parmsStr()</strong></td>
+            <td><?=htmlentities(Router::parmsStr())?></td>
+        </tr>
     </tbody>
 </table>

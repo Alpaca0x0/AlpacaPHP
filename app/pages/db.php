@@ -11,7 +11,7 @@
 <div class="ts-divider is-section"></div>
 
 <div class="ts-container">
-    <?php Inc::component('info'); ?>
+    <?php Inc::component('router'); ?>
 </div>
 
 <?php Inc::component('footer'); ?>

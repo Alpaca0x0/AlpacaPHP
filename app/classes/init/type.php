@@ -9,18 +9,15 @@ class Type{
                 if(is_array($data)){ return $data; }
                 $ret = @json_decode($data, true);
                 return is_array($ret) ? $ret : $replace;
-            }else if(in_array($type, ['datetime', 'date', 'time', 'timestamp'])){
+            }else if(in_array($type, ['datetime', 'date', 'time'])){
                 $formats = [
                     'datetime' => 'Y-m-d H:i:s',
                     'date' => 'Y-m-d', 
                     'time' => 'H:i:s',
                 ];
+                $format = $formats[$type];
                 $dt = new DateTimeImmutable($data ?? 0);
                 if(!$dt){ return $replace; }
-                // ts
-                if(in_array($type, ['timestamp'])){ return $dt->getTimestamp(); }
-                // 
-                $format = $formats[$type];
                 return str_starts_with($dt->format('Y') ?? '-', '-') ? $replace : $dt->format($format);
             }
             else if(@settype($data,$type) !== true){ throw new Exception('type convert error'); }
@@ -41,6 +38,4 @@ class Type{
     static function datetime(){ return self::convert('datetime', ...func_get_args()); }
     static function date(){ return self::convert('date', ...func_get_args()); }
     static function time(){ return self::convert('time', ...func_get_args()); }
-    static function timestamp(){ return self::convert('timestamp', ...func_get_args()); }
-    static function ts(){ return self::convert('timestamp', ...func_get_args()); }
 }
