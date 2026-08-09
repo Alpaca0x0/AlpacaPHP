@@ -143,7 +143,7 @@ class DB{
 	}
 
 	static function beginTransaction(){
-		if(!self::$connect || !self::$connect->inTransaction()){ return false; }
+		if(!self::$connect || self::$connect->inTransaction()){ return false; }
 		return self::$connect->beginTransaction();
 	}
 	static function commit(){
@@ -151,7 +151,7 @@ class DB{
 		return self::$connect->commit();
 	}
 	static function rollback(){
-		if(!self::$connect || !self::$connect->inTransaction()){ return false; }
+		if(!self::$connect || self::$connect->inTransaction()){ return false; }
 		return self::$connect->rollback();
 	}
 }
