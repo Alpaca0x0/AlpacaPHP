@@ -85,9 +85,11 @@
 | `classes/` | 核心功能 |
 | `components/` | 頁面部件（`header`、`footer` 等） |
 | `configs/` | 設定檔 |
+| `langs/` | 多國語言檔（`classes/lang.php` 讀取） |
 | `libraries/` | 僅供後端使用的函式庫（有別於 `assets/plugin/`） |
 | `pages/` | 站點頁面 |
 | `routers/` | Web Routing 規則 |
+| `../database/` | 資料庫 Schema（如權限系統範例，選用） |
 
 ### :clipboard: Files
 
@@ -125,6 +127,18 @@
 - **`configs`**\
   用於存放設定檔的目錄，其`.example`為範例檔案，需要將檔名中的該字節刪除。如`db.example.php`修改內容後更名為`db.php`。
 
+- **`langs`**\
+  多國語言檔案，依`langs/{分類}/{語系代碼}.php`存放，例如`langs/common/zh-tw.php`。搭配`classes/lang.php`的`Lang`類別使用：
+
+  ```php
+  Inc::clas('lang');
+  $lang = new Lang(); // 預設讀取 cookie 或瀏覽器語言
+  $lang->load('common'); // 載入 langs/common/{lang}.php
+  echo $lang->get('greeting', ['name' => 'Alpaca']); // 支援 {{name}} 變數帶入
+  ```
+
+  可用語系清單設定於`configs/language.php`，範例參考`/lang/`頁面。
+
 - **`libraries`**\
   與 `assets/plugin` 不同的點在於，`plugin` 資源可於前端調用，而 `libraries` 僅供後端使用。
 
@@ -133,6 +147,41 @@
 
 - **`routers`**\
   用於存放`Main Router`的目錄。
+
+- **`../database`**\
+  存放資料庫 Schema，目前僅有一份最小可用的登入 + 身分階層系統範例`schema.sql`（`managers`、`roles`、`permissions`三張表），匯入後：
+
+  - 內建帳號：`admin` / `admin`，身分為 **root**（`managers.role` = `NULL`，不對應`roles`表）。
+  - 身分階層：`dev`（rank 20）> `admin`（rank 10）> `common`（rank 0），存放於`roles`表。
+  - `permissions`表僅作為範例保留一筆`demo`，未與角色綁定（沒有`role_permissions`這種細粒度授權表）。
+
+  規則很單純：**root 可以控制所有人**（包含其他 root）；非 root 只能控制`rank`比自己低的身分組，且不能把任何人（含自己新增的帳號）指派成比自己權限高或相等的身分組，也不能指派成 root。對應邏輯在`classes/manager.php`的`Manager::canControl()`：
+
+  ```php
+  Inc::clas('manager');
+  $me = Manager::current(); // false 代表未登入
+  if(Manager::canControl($me['role'], $target['role'])){ /* 可以調整 $target */ }
+  ```
+
+  Session 由入口路由`/router.php`統一於最前面`session_start()`（必須在任何輸出之前，見該檔案），`classes/manager.php`則直接讀寫`$_SESSION['manager']`。
+
+  範例頁面：`/login/`（登入，未登入時`/permission/`會自動導向至此）、`/permission/`（登入後可新增帳號、依身分階層調整他人身分組）。
+
+  對應 API（`TODO`已內建於各檔案的權限判斷中，非佔位註解）：
+
+  | Method | 路徑 | 說明 |
+  |---|---|---|
+  | POST | `/api/login/` | 登入（`username`、`password`） |
+  | POST | `/api/logout/` | 登出 |
+  | GET | `/api/manager/get/` | 取得所有帳號（需登入；附上對每筆帳號的`canControl`旗標） |
+  | POST | `/api/manager/add/` | 新增帳號（`username`、`password`、`role`；`role`留空代表 root，僅 root 可用） |
+  | POST | `/api/manager/role/set/` | 調整指定帳號的身分組（`id`、`role`），受`Manager::canControl()`限制 |
+  | GET | `/api/permission/get/` | 取得所有權限（需登入） |
+  | POST | `/api/permission/add/` | 新增權限（僅 root；`name`、`text`） |
+  | POST | `/api/permission/edit/` | 編輯權限（僅 root；`id`、`text`） |
+  | GET | `/api/permission/roles/get/` | 取得所有身分組（需登入） |
+  | POST | `/api/permission/roles/add/` | 新增身分組（僅 root；`name`、`text`、`rank`） |
+  | POST | `/api/permission/roles/edit/` | 編輯身分組（僅 root；`id`、`text`、`rank`） |
 
 ---
 

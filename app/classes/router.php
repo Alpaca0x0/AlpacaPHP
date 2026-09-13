@@ -37,6 +37,7 @@ class Router{
             // 完整路徑轉發
             else if($path === true){
                 $path = self::path();
+                $uri = '';
             }
             // 自訂路徑
             else if(is_string($path)){
@@ -45,6 +46,7 @@ class Router{
                     "{path}" => substr(self::path(), strlen($uri)),
                 ];
                 $path = strtr($path, $vars);
+                $uri = '';
             }
             // unexpected
             else{
@@ -61,9 +63,31 @@ class Router{
         foreach($uris as $uri){
             $uri = ltrim($uri,'/');
             if($uri !== self::path()){ continue; }
-            $path = is_null($path) ? substr(self::path(), strlen($uri)) : $path;
+            //
+            // 預設，扣除上層路徑
+            if(is_null($path) || $path===false){
+                $path = substr(self::path(), strlen($uri));
+            }
+            // 完整路徑轉發
+            else if($path === true){
+                $path = self::path();
+                $uri = '';
+            }
+            // 自訂路徑
+            else if(is_string($path)){
+                $vars = [
+                    "{root}" => $uri,
+                    "{path}" => substr(self::path(), strlen($uri)),
+                ];
+                $path = strtr($path, $vars);
+                $uri = '';
+            }
+            // unexpected
+            else{
+                die('Router::get(): Invalid path argument.');
+            }
             if(is_callable($callback)){ call_user_func($callback); }
-            else if(is_string($callback)) { self::route($callback, $path, $uri); }
+            else if(is_string($callback)) { self::route(self::local().$callback, $path, $uri); }
         }
     }
 
@@ -96,7 +120,7 @@ class Router{
         }
         // forward scan to find best page prefix for uri params, and stop early when next level not exists.
         // e.g. /some_page/1/2/ => pages/some_page/ + args = ['1', '2']
-        $parts = array_values(array_filter(explode('/', trim($filename, '/'))));
+        $parts = array_values(array_filter(explode('/', trim($filename, '/')), fn($p) => $p !== ''));
         $matchedDepth = null;
         $matchedFile = false;
         for($i = 1; $i <= count($parts); $i++){
@@ -122,7 +146,8 @@ class Router{
             require($matchedFile);
             die();
         }
-        return false;
+        http_response_code(404);
+        die();
     }
 
     # route to another router

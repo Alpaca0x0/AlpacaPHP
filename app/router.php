@@ -10,6 +10,9 @@
 // init
 require_once('init.php');
 
+// session (must start before any output, so login state works everywhere)
+if(session_status() !== PHP_SESSION_ACTIVE){ session_start(); }
+
 // init router
 Inc::clas('Router');
 Router::init();

@@ -39,7 +39,7 @@ define('ROOT', '/AlpacaPHP/');
 # Messages
 # 顯示訊息
 define('MSG', [
-    'maintain' => 'The website is under maintenance. Please come back later.'
+    'maintain' => 'The website is under maintenance. Please come back later.<br>網站正在維修中，請稍後再回來看看吧。'
 ]);
 
 
@@ -67,7 +67,8 @@ class Path{ const
     component = 'components/',  // Components
     router = 'routers/',        // Routers
     asset = 'assets/',          // Assets, e.g. css, js, img ...
-    lib = 'libraries/'          // Libraries, e.g. PHPMailer
+    lib = 'libraries/',         // Libraries, e.g. PHPMailer
+    lang = 'langs/'             // Language files, e.g. langs/common/zh-tw.php
 # URI paths
 # URI 路徑
 ;const
@@ -100,6 +101,10 @@ define('PROTOCOL', $_SERVER['HTTP_X_FORWARDED_PROTO'] ?? (!empty($_SERVER['HTTPS
 
 # Client IP
 define('IP', $_SERVER['HTTP_X_REMOTE_ADDR'] ?? $_SERVER["REMOTE_ADDR"] ?? null);
+
+# Timestamp when this request started (with microseconds), shared as a "now" reference for the whole request
+# 本次請求開始的時間戳記（含微秒），可作為整個請求共用的「當下時間」基準，或用於計算執行耗時
+define('DATETIME', microtime(true));
 
 # URL base
 define('URL_BASE', PROTOCOL . '://' . DOMAIN);
