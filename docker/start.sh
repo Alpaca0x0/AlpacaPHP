@@ -1,1 +1,3 @@
-docker compose -p alpacaphp up --force-recreate -d && docker compose logs -f -p alpacaphp -t --tail=320
+PROJECT_NAME=alpacaphp
+
+docker compose -p "$PROJECT_NAME" up --force-recreate -d && docker compose logs -f -p "$PROJECT_NAME" -t --tail=320
