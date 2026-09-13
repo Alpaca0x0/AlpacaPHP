@@ -11,10 +11,6 @@ return [
         'text' => 'DB',
         'link' => Uri::page('db/'),
     ],
-    'request' => [
-        'text' => 'Request',
-        'link' => Uri::page('request/'),
-    ],
     'lang' => [
         'text' => 'Lang',
         'link' => Uri::page('lang/'),
