@@ -10,7 +10,6 @@ $id > 0 || Resp::error('id_out_of_range', 'ID 超出範圍');
 
 Inc::clas('manager');
 $actor = Manager::current();
-$actor !== false || Resp::error('not_logged_in', '請先登入');
 $actor['role'] === null || Resp::error('permission_denied', '只有 root 可以編輯權限');
 
 Inc::clas('permission');

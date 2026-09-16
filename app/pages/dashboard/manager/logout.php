@@ -1,4 +1,4 @@
 <?php
 Inc::clas('manager');
 Manager::logout();
-Router::redirect('/login/');
+Router::redirect('dashboard/manager/login/');
