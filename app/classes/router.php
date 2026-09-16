@@ -162,7 +162,7 @@ class Router{
     static function redirect($path, $withPost=true, $withGet=true){
         if(headers_sent()){ die('Router Error: Headers already been sent.'); }
         if($withPost) header('HTTP/1.1 307 Temporary Redirect');
-        header('Location: '.ROOT.self::root().ltrim($path,'/').($withGet && empty($_SERVER['QUERY_STRING']) ? '' : '?'.$_SERVER['QUERY_STRING']));
+        header('Location: '.ROOT.self::root().ltrim($path,'/').($withGet && !empty($_SERVER['QUERY_STRING']) ? '?'.$_SERVER['QUERY_STRING'] : ''));
         die();
     }
     static function jump($url, $withPost=false, $withGet=false){

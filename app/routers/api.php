@@ -13,7 +13,7 @@ Router::get('dashboard/login/', function(){ Router::view(); });
 Router::get('dashboard/', function(){
     if((new Manager())->id){ return; }
     http_response_code(403);
-    Resp::warning('permission_denied', '請先登入');
+    Resp::warning('permission_denied', 'Permission denied');
 });
 
 Router::view();

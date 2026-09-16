@@ -1,6 +1,7 @@
 <?php
 Inc::clas('manager');
-if(Manager::current()){ Router::redirect('dashboard/permission/'); }
+// withGet: false，避免把自己網址上（可能已帶有 redirect 參數）的 query string 原封不動地接到目的地，造成 redirect 參數一直巢狀累加
+if(Manager::current()){ Router::redirect('dashboard/permission/', withGet: false); }
 
 Inc::clas('captcha');
 
