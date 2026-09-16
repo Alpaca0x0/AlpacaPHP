@@ -6,17 +6,18 @@ Router::get('dashboard/manager/login/', function(){ Router::view(); });
 Router::get('dashboard/manager/logout/', function(){ Router::view(); });
 
 // 其餘 dashboard/ 底下的頁面都要先登入，未登入導向登入頁並夾帶 redirect 參數
-// 後端授權需要以資料庫驗證 token（Manager::current() 只讀 session，不做這件事），故實體化 Manager
 Router::get('dashboard/', function(){
     if((new Manager())->id){ return; }
     if(!headers_sent()){
-        header('Location: '.Uri::page('dashboard/manager/login/').'?redirect='.urlencode(Router::path().Router::parmsStr()));
+        header('Location: '.Uri::page('dashboard/manager/login/').'?redirect='.urlencode(Router::path()));
     }
     die();
 });
 
 // dashboard/ 首頁導向預設頁面
-Router::equal('dashboard/', function(){ Router::redirect('dashboard/permission/'); });
+Router::equal('dashboard/', function(){
+    Router::redirect('dashboard/permission/');
+});
 
 Router::view();
 

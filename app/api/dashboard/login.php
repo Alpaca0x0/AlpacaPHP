@@ -29,13 +29,13 @@ if($captchaConfig['enable']){
         ':manager' => $manager->id,
         ':commit' => 'login_failed',
         ':ts' => $ts,
-        ':seconds' => $captchaConfig['attemptsWindow'],
+        ':seconds' => $config['login']['attemptsWindow'],
     ]);
     !DB::error() || Resp::error('sql_query', '查詢登入紀錄時發生錯誤');
     $row = DB::fetch();
     $failedCount = Type::int($row['count'] ?? 0, 0);
 
-    if($failedCount >= $captchaConfig['maxAttempts']){
+    if($failedCount >= $config['login']['maxAttempts']){
         $captcha = Type::string($_POST['captcha'] ?? '', '');
         $captcha !== '' || Resp::warning('needs_captcha', '登入失敗次數過多，請輸入驗證碼');
         Inc::clas('captcha');
@@ -57,7 +57,7 @@ if(!password_verify($password, $manager->password)){
 
 // 登入成功：產生 token，寫入 manager_events，並存入 session
 $token = bin2hex(random_bytes(32));
-$expireTimestamp = $ts + $config['timeout']['login'];
+$expireTimestamp = $ts + $config['login']['timeout'];
 
 DB::query('INSERT INTO `manager_events` (`manager`, `commit`, `token`, `ip`, `expire`, `datetime`)
     VALUES (:manager, :commit, :token, :ip, FROM_UNIXTIME(:expire), FROM_UNIXTIME(:ts));

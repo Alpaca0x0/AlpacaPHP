@@ -48,7 +48,7 @@ class Manager{
             $config = Inc::config('manager');
             DB::query('UPDATE `manager_events` SET `expire` = DATE_ADD(NOW(), INTERVAL :seconds SECOND)
                 WHERE `token` = :token AND `commit` = :commit;
-            ')::execute([':seconds' => $config['timeout']['login'], ':token' => $token, ':commit' => 'login']);
+            ')::execute([':seconds' => $config['login']['timeout'], ':token' => $token, ':commit' => 'login']);
             return;
         }
 
