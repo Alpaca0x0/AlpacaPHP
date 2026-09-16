@@ -21,3 +21,11 @@ while IFS= read -r -d '' example; do
 
 	php "$script_dir/merge.php" build "$example" "$real"
 done < <(find "$configs_dir" -type f -name '.*.php' -print0 | sort -z)
+
+# app/.config.php 是 define()/class 常數，不是 return [...] 陣列，merge.php 沒辦法比對欄位，
+# 只在正式檔不存在時複製一次；已存在就不動，避免蓋掉手動調整過的值。
+app_dir="$(cd "$script_dir/../../app" && pwd)"
+if [ ! -f "$app_dir/config.php" ]; then
+	cp "$app_dir/.config.php" "$app_dir/config.php"
+	echo "Created: config.php (copied from example file)"
+fi
