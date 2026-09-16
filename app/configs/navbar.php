@@ -19,11 +19,11 @@ return [
         'text' => 'Permission',
         'link' => Uri::page('dashboard/permission/'),
     ],
-    'auth' => $me === false ? [
+    'auth' => $me === null ? [
         'text' => 'Login',
         'link' => Uri::page('dashboard/manager/login/'),
     ] : [
-        'text' => 'Logout ('.$me['username'].')',
+        'text' => 'Logout ('.$me['account'].')',
         'link' => Uri::page('dashboard/manager/logout/'),
     ],
 ];

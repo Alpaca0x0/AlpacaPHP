@@ -13,8 +13,11 @@ class Captcha{
 		self::set(self::$config);
 	}
 
+	// Securimage 內部屬性名稱是 snake_case，這裡轉接我們自己的駝峰式 config key
+	static private $securimageKeyMap = ['codeLength' => 'code_length'];
+
 	static function set($config=[]){
-		foreach($config as $key => $val){ self::$captcha->{$key} = $val; }
+		foreach($config as $key => $val){ self::$captcha->{self::$securimageKeyMap[$key] ?? $key} = $val; }
 	}
 
 	static function src(){ return self::$src; }

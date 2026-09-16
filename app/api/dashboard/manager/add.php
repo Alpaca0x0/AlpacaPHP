@@ -2,31 +2,31 @@
 Inc::clas('resp');
 Resp::header();
 
-$username = trim(Type::string($_POST['username'] ?? ''));
+$account = strtolower(trim(Type::string($_POST['account'] ?? '')));
 $password = Type::string($_POST['password'] ?? '');
-$roleRaw = $_POST['role'] ?? '';
-$role = ($roleRaw === '' || $roleRaw === null) ? null : Type::int($roleRaw);
-
-(mb_strlen($username) > 0 && mb_strlen($username) <= 64) || Resp::error('username_length_out_of_range', '帳號長度超出範圍');
-mb_strlen($password) > 0 || Resp::error('password_required', '請輸入密碼');
+$name = trim(Type::string($_POST['name'] ?? ''));
+$role = Type::string($_POST['role'] ?? '');
 
 Inc::clas('manager');
-$actor = Manager::current();
-
 Inc::clas('permission');
-// 沒有人（包含 root）可以透過這個功能新增 root 帳號；非 root 還必須新增比自己權限低的身分組
-$role !== null || Resp::error('permission_denied', '不能新增 root 帳號');
-if($actor['role'] !== null){
-    $actorRoleData = Permission::getRole($actor['role']);
-    $newRoleData = Permission::getRole($role);
-    ($actorRoleData && $newRoleData && $actorRoleData['rank'] > $newRoleData['rank']) || Resp::error('permission_denied', '你沒有權限指派這個身分組');
-}
+$config = Inc::config('manager');
+preg_match($config['account'], $account) || Resp::error('format_not_match', 'account', '帳號格式不正確');
+preg_match($config['password'], $password) || Resp::error('format_not_match', 'password', '密碼格式不正確');
+preg_match($config['name'], $name) || Resp::error('format_not_match', 'name', '名稱格式不正確');
+Permission::getRoleByName($role) || Resp::error('format_not_match', 'role', '身分組不正確');
 
-$id = Manager::add($username, $password, $role);
+$actor = new Manager();
+$actor->id || Resp::error('permission_denied', '請先登入');
+
+// 沒有人（包含 root）可以透過這個功能新增 root 帳號；非 root 還必須新增比自己權限低的身分組
+Manager::canControl($actor->role, $role) || Resp::error('permission_denied', '你沒有權限指派這個身分組');
+
+$id = Manager::add($account, $password, $name, $role);
 $id !== false || Resp::error('sql_query', '新增帳號時發生錯誤（帳號可能已存在）');
 
 Resp::success('success', [
     'id' => $id,
-    'username' => $username,
+    'account' => $account,
+    'name' => $name,
     'role' => $role,
 ], '新增成功');

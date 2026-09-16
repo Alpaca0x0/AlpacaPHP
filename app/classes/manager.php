@@ -1,93 +1,144 @@
 <?php
 Inc::clas('db');
 Inc::clas('permission');
-// 最小可用的登入系統。身分階層規則：
-// - `role` 為 NULL 表示 root，可以控制所有人（包含其他 root）。
-// - 非 root 只能控制 rank 比自己低的身分組；root 無法被任何非 root 控制。
+// Session 制登入系統。
+// - `role` 關聯 `roles`.`id`（見 classes/permission.php、database/schema.sql），NOT NULL，預設 common；
+//   root 也是 `roles` 表裡的一筆（rank 最高），須明確寫上，不再用 NULL 表示；任何人（含其他 root）都無法
+//   控制 root，見 self::canControl()。Manager 對外一律用 role 的 key（`roles`.`name`，例如 'dev'），
+//   id ↔ key 的轉換透過 Permission::getRoleByName() 查表。
+// - Manager::current() 只讀 session（key 'manager'：id/account/name/token），不碰資料庫，
+//   給前端/僅用於顯示的場景使用。
+// - 後端要驗證權限時不能只靠 session，必須查資料庫確認 token 沒過期，因此把 Manager 設計成可實體化：
+//     new Manager()                 // 從 session 取得目前登入帳號，並以資料庫驗證 token
+//     new Manager(id: 2)            // 依 id 查詢帳號（不驗證 token，僅單純取得該帳號資料）
+//     new Manager(account: 'abc')   // 依 account 查詢帳號（不驗證 token）
+//   查無帳號、或（session 情境下）token 已過期時，$this->id 等屬性維持 null。
 // session 由入口路由 (router.php) 統一啟動，見該檔案。
 class Manager{
-    // 帳號登入，成功時將 manager id 寫入 session
-    static function login($username, $password){
-        if(!DB::connect()){ return false; }
-        DB::query("SELECT `id`, `password` FROM `managers` WHERE `username` = :username LIMIT 1;")::execute([':username' => $username]);
-        $data = DB::fetch();
-        if(DB::error() || !$data || !password_verify($password, $data['password'])){ return false; }
-        $_SESSION['manager'] = $data['id'];
-        return true;
+    public $id, $account, $name, $role, $password, $token;
+
+    function __construct($id=null, $account=null){
+        if(!DB::connect()){ return; }
+
+        // 未指定 id/account：從 session 取得目前登入帳號，並以資料庫驗證 token 是否過期
+        if($id === null && $account === null){
+            $session = self::current();
+            $token = Type::string($session['token'] ?? '', '');
+            if($token === ''){ return; }
+
+            DB::query('SELECT `m`.`id`, `m`.`account`, `m`.`name`, `r`.`name` AS `role`, `m`.`password`
+                FROM `manager_events` `me`
+                JOIN `managers` `m` ON `m`.`id` = `me`.`manager`
+                JOIN `roles` `r` ON `r`.`id` = `m`.`role`
+                WHERE `me`.`token` = :token AND `me`.`commit` = :commit AND `me`.`expire` > NOW()
+                ORDER BY `me`.`id` DESC
+                LIMIT 1
+            ;')::execute([':token' => $token, ':commit' => 'login']);
+            $manager = DB::fetch();
+            if(DB::error() || !$manager){ unset($_SESSION['manager']); return; } // token 已過期或不存在，session 一併失效
+
+            $this->id = $manager['id'];
+            $this->account = $manager['account'];
+            $this->name = $manager['name'];
+            $this->role = $manager['role'];
+            $this->password = $manager['password'];
+            $this->token = $token;
+
+            // 每次通過驗證的請求都延長 token 存活時間
+            $config = Inc::config('manager');
+            DB::query('UPDATE `manager_events` SET `expire` = DATE_ADD(NOW(), INTERVAL :seconds SECOND)
+                WHERE `token` = :token AND `commit` = :commit;
+            ')::execute([':seconds' => $config['timeout']['login'], ':token' => $token, ':commit' => 'login']);
+            return;
+        }
+
+        // 指定 id 或 account：單純查詢該帳號資料，不做 token 驗證
+        if($id !== null){
+            $where = '`m`.`id` = :value';
+            $value = Type::int($id);
+        }else{
+            $where = '`m`.`account` = :value';
+            $value = Type::string($account);
+        }
+        DB::query("SELECT `m`.`id`, `m`.`account`, `m`.`name`, `r`.`name` AS `role`, `m`.`password`
+            FROM `managers` `m`
+            JOIN `roles` `r` ON `r`.`id` = `m`.`role`
+            WHERE {$where}
+            LIMIT 1
+        ;")::execute([':value' => $value]);
+        $manager = DB::fetch();
+        if(DB::error() || !$manager){ return; }
+
+        $this->id = $manager['id'];
+        $this->account = $manager['account'];
+        $this->name = $manager['name'];
+        $this->role = $manager['role'];
+        $this->password = $manager['password'];
     }
 
+    // 只讀 session，不碰資料庫；未登入回傳 null
+    static function current(){
+        return $_SESSION['manager'] ?? null;
+    }
+
+    // 把目前登入 token 在資料庫中設為過期，並清除 session
     static function logout(){
+        $session = self::current();
+        if(!$session){ return true; }
+        if(DB::connect()){
+            DB::query('UPDATE `manager_events` SET `expire` = NOW()
+                WHERE `token` = :token AND `commit` = :commit AND `expire` > NOW();
+            ')::execute([':token' => Type::string($session['token'] ?? '', ''), ':commit' => 'login']);
+        }
         unset($_SESSION['manager']);
         return true;
     }
 
-    // 取得目前登入的帳號資料，未登入回傳 false
-    static function current(){
-        if(empty($_SESSION['manager'])){ return false; }
-        return self::get($_SESSION['manager']);
-    }
-
-    static function isLoggedIn(){ return self::current() !== false; }
-
-    // 新增帳號；$roleId 為 null 表示 root
-    static function add($username, $password, $roleId){
+    // 新增帳號；$role 為 roles.name（例如 'dev'）；不指定時給 null，交給資料庫欄位預設值（common）
+    static function add($account, $password, $name, $role=null){
         if(!DB::connect()){ return false; }
-        DB::query("INSERT INTO `managers` (`username`, `password`, `role`) VALUES (:username, :password, :role);")::execute([
-            ':username' => $username,
-            ':password' => password_hash($password, PASSWORD_ARGON2ID),
-            ':role' => $roleId,
-        ]);
+        $roleId = null;
+        if($role !== null){
+            $roleData = Permission::getRoleByName($role);
+            if(!$roleData){ return false; }
+            $roleId = $roleData['id'];
+        }
+        if($roleId === null){
+            DB::query('INSERT INTO `managers` (`account`, `password`, `name`) VALUES (:account, :password, :name);')::execute([
+                ':account' => $account,
+                ':password' => password_hash($password, PASSWORD_ARGON2ID),
+                ':name' => $name,
+            ]);
+        }else{
+            DB::query('INSERT INTO `managers` (`account`, `password`, `name`, `role`) VALUES (:account, :password, :name, :role);')::execute([
+                ':account' => $account,
+                ':password' => password_hash($password, PASSWORD_ARGON2ID),
+                ':name' => $name,
+                ':role' => $roleId,
+            ]);
+        }
         if(DB::error()){ return false; }
         return Type::int(DB::lastInsertId());
     }
 
-    // `role` = NULL 代表 root；`roleText`/`rank` 皆為 NULL 時也代表 root
-    static function get($id){
+    // 更新指定帳號的身分組；$role 為 roles.name（例如 'dev'）
+    static function setRole($manager, $role){
         if(!DB::connect()){ return false; }
-        DB::query("SELECT `m`.`id`, `m`.`username`, `m`.`role`, `r`.`text` AS `roleText`, `r`.`rank`
-            FROM `managers` `m`
-            LEFT JOIN `roles` `r` ON `r`.`id` = `m`.`role`
-            WHERE `m`.`id` = :id
-            LIMIT 1
-        ;")::execute([':id' => $id]);
-        $data = DB::fetch();
-        if(DB::error() || !$data){ return false; }
-        $data['isRoot'] = $data['role'] === null;
-        return $data;
-    }
-
-    static function getAll(){
-        if(!DB::connect()){ return false; }
-        DB::query("SELECT `m`.`id`, `m`.`username`, `m`.`role`, `r`.`text` AS `roleText`, `r`.`rank`
-            FROM `managers` `m`
-            LEFT JOIN `roles` `r` ON `r`.`id` = `m`.`role`
-            ORDER BY `m`.`id`
-        ;")::execute();
-        $ret = DB::fetchAll();
-        if(DB::error()){ return false; }
-        foreach($ret as &$row){ $row['isRoot'] = $row['role'] === null; }
-        unset($row);
-        return $ret;
-    }
-
-    // 更新指定帳號的身分組；$roleId 為 null 表示設為 root
-    static function setRole($id, $roleId){
-        if(!DB::connect()){ return false; }
-        DB::query("UPDATE `managers` SET `role` = :role WHERE `id` = :id;")::execute([
-            ':role' => $roleId,
-            ':id' => $id,
+        $roleData = Permission::getRoleByName($role);
+        if(!$roleData){ return false; }
+        DB::query('UPDATE `managers` SET `role` = :role WHERE `id` = :id;')::execute([
+            ':role' => $roleData['id'],
+            ':id' => Type::int($manager),
         ]);
         return !DB::error();
     }
 
-    // 判斷擁有 $actorRole 身分的人，是否可以控制擁有 $targetRole 身分的人
-    // $actorRole / $targetRole 皆為 managers.role 的值：null 代表 root
+    // 判斷擁有 $actorRole 身分的人，是否可以控制擁有 $targetRole 身分的人：
+    // 依 roles.rank 比較，只能控制 rank 比自己低的身分組，同層（含 root 對 root）也不行。
     static function canControl($actorRole, $targetRole){
-        if($targetRole === null){ return false; } // root 之間互為同層，沒有人（包含其他 root）可以控制 root
-        if($actorRole === null){ return true; } // root 可以控制所有非 root 的人
-        $actor = Permission::getRole($actorRole);
-        $target = Permission::getRole($targetRole);
+        $actor = Permission::getRoleByName($actorRole);
+        $target = Permission::getRoleByName($targetRole);
         if(!$actor || !$target){ return false; }
-        return $actor['rank'] > $target['rank']; // 只能控制層級比自己低的人，同層也不行
+        return $actor['rank'] > $target['rank'];
     }
 }
