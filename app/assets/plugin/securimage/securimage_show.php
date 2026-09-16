@@ -52,7 +52,8 @@ require_once dirname(__FILE__) . '/securimage.php';
 $img = new Securimage();
 
 $config = Inc::config('captcha');
-foreach($config as $key => $val){ $img->{$key} = $val; }
+$securimageKeyMap = ['codeLength' => 'code_length']; // Securimage 內部屬性是 snake_case
+foreach($config as $key => $val){ $img->{$securimageKeyMap[$key] ?? $key} = $val; }
 
 // You can customize the image by making changes below, some examples are included - remove the "//" to uncomment
 
