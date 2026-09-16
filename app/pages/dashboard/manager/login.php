@@ -1,6 +1,10 @@
 <?php
 Inc::clas('manager');
-if(Manager::isLoggedIn()){ Router::redirect('/permission/'); }
+if(Manager::isLoggedIn()){ Router::redirect('dashboard/'); }
+
+// 登入成功後要導回的頁面；統一加上 ROOT 前綴，避免被帶去站外網址
+$redirect = trim(Type::string($_GET['redirect'] ?? '', ''), '/');
+if($redirect === ''){ $redirect = 'dashboard/'; }
 ?>
 <?php Inc::component('header'); ?>
 <?php Inc::component('navbar'); ?>
@@ -36,11 +40,11 @@ if(Manager::isLoggedIn()){ Router::redirect('/permission/'); }
             message.value = '';
             $.ajax({
                 type: 'post',
-                url: '<?=Uri::api('login')?>/',
+                url: '<?=Uri::api('dashboard/login')?>/',
                 data: datas,
             }).done((resp) => {
                 if(resp.type === 'success'){
-                    window.location.href = '<?=Uri::page('permission/')?>';
+                    window.location.href = '<?=Uri::page('')?>' + <?=json_encode($redirect)?>;
                 }else{
                     message.value = resp.message;
                 }

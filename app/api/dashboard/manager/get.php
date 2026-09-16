@@ -4,7 +4,6 @@ Resp::header();
 
 Inc::clas('manager');
 $actor = Manager::current();
-$actor !== false || Resp::error('not_logged_in', '請先登入');
 
 $managers = Manager::getAll();
 $managers !== false || Resp::error('sql_query', '取得帳號清單時發生錯誤');

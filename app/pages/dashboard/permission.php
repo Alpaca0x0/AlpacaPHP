@@ -1,7 +1,6 @@
 <?php
 Inc::clas('manager');
 $me = Manager::current();
-if($me === false){ Router::redirect('/login/'); }
 ?>
 <?php Inc::component('header'); ?>
 <?php Inc::component('navbar'); ?>
@@ -10,7 +9,7 @@ if($me === false){ Router::redirect('/login/'); }
     <p>
         目前登入：<strong>{{ me.username }}</strong>
         （<strong>{{ me.isRoot ? 'Root' : me.roleText }}</strong>）
-        　<a href="<?=Uri::page('logout/')?>">登出</a>
+        　<a href="<?=Uri::page('dashboard/manager/logout/')?>">登出</a>
     </p>
 
     <div class="ts-divider is-section"></div>
@@ -53,7 +52,6 @@ if($me === false){ Router::redirect('/login/'); }
                 <td>
                     <template v-if="m.canControl">
                         <select v-model="m._newRole">
-                            <option v-if="me.isRoot" :value="null">Root</option>
                             <option v-for="role in controllableRoles" :key="role.id" :value="role.id">{{ role.text }}</option>
                         </select>
                         <button class="ts-button is-small" type="button" @click="setRole(m)" :disabled="is.saving === m.id">儲存</button>
@@ -97,7 +95,7 @@ if($me === false){ Router::redirect('/login/'); }
         const controllableRoles = assignableRoles;
 
         const loadRoles = () => {
-            $.ajax({ url: '<?=Uri::api('permission/roles/get')?>/' }).done((resp) => {
+            $.ajax({ url: '<?=Uri::api('dashboard/permission/roles/get')?>/' }).done((resp) => {
                 if(resp.type !== 'success'){ return; }
                 roles.splice(0, roles.length, ...resp.data);
                 if(newManager.role === null && assignableRoles.value.length){
@@ -107,7 +105,7 @@ if($me === false){ Router::redirect('/login/'); }
         };
 
         const loadManagers = () => {
-            $.ajax({ url: '<?=Uri::api('manager/get')?>/' }).done((resp) => {
+            $.ajax({ url: '<?=Uri::api('dashboard/manager/get')?>/' }).done((resp) => {
                 if(resp.type !== 'success'){ managerMessage.value = resp.message; return; }
                 const list = resp.data.managers.map(m => ({ ...m, _newRole: m.role }));
                 managers.splice(0, managers.length, ...list);
@@ -119,7 +117,7 @@ if($me === false){ Router::redirect('/login/'); }
             addMessage.value = '';
             $.ajax({
                 type: 'post',
-                url: '<?=Uri::api('manager/add')?>/',
+                url: '<?=Uri::api('dashboard/manager/add')?>/',
                 data: newManager,
             }).done((resp) => {
                 addMessage.value = resp.message;
@@ -137,7 +135,7 @@ if($me === false){ Router::redirect('/login/'); }
             managerMessage.value = '';
             $.ajax({
                 type: 'post',
-                url: '<?=Uri::api('manager/role/set')?>/',
+                url: '<?=Uri::api('dashboard/manager/role/set')?>/',
                 data: { id: m.id, role: m._newRole === null ? '' : m._newRole },
             }).done((resp) => {
                 managerMessage.value = resp.message;

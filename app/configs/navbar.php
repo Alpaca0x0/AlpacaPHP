@@ -17,13 +17,13 @@ return [
     ],
     'permission' => [
         'text' => 'Permission',
-        'link' => Uri::page('permission/'),
+        'link' => Uri::page('dashboard/permission/'),
     ],
     'auth' => $me === false ? [
         'text' => 'Login',
-        'link' => Uri::page('login/'),
+        'link' => Uri::page('dashboard/manager/login/'),
     ] : [
         'text' => 'Logout ('.$me['username'].')',
-        'link' => Uri::page('logout/'),
+        'link' => Uri::page('dashboard/manager/logout/'),
     ],
 ];

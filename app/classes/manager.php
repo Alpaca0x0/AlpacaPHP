@@ -83,11 +83,11 @@ class Manager{
     // 判斷擁有 $actorRole 身分的人，是否可以控制擁有 $targetRole 身分的人
     // $actorRole / $targetRole 皆為 managers.role 的值：null 代表 root
     static function canControl($actorRole, $targetRole){
-        if($actorRole === null){ return true; } // root 可以控制所有人
-        if($targetRole === null){ return false; } // 除了 root，沒有人可以控制 root
+        if($targetRole === null){ return false; } // root 之間互為同層，沒有人（包含其他 root）可以控制 root
+        if($actorRole === null){ return true; } // root 可以控制所有非 root 的人
         $actor = Permission::getRole($actorRole);
         $target = Permission::getRole($targetRole);
         if(!$actor || !$target){ return false; }
-        return $actor['rank'] > $target['rank'];
+        return $actor['rank'] > $target['rank']; // 只能控制層級比自己低的人，同層也不行
     }
 }
